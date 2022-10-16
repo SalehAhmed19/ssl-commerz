@@ -19,7 +19,7 @@ app.use("/ssl-request", async (req, res) => {
     currency: "BDT",
     tran_id: "REF123",
     success_url: "http://loaclhost:3000/ssl-payment-success",
-    fail_url: "http://loaclhost:3000/ssl-payment-fail",
+    fail_url: "http://loaclhost:3000/ssl-payment-failure",
     cancel_url: "http://loaclhost:3000/ssl-payment-cancel",
     ipn_url: "http://loaclhost:3000/ssl-payment-ipn",
     shipping_method: "Courier",
@@ -51,7 +51,7 @@ app.use("/ssl-request", async (req, res) => {
   };
   const sslcommerz = new SSLCommerzPayment(
     process.env.STORE_ID,
-    process.env.PASSWORD,
+    process.env.STORE_PASSWORD,
     false
   ); //true for live default false for sandbox
   sslcommerz.init(data).then((data) => {
@@ -68,31 +68,49 @@ app.use("/ssl-request", async (req, res) => {
   });
 });
 
-app.post("ssl-payment-success", async (req, res, next) => {
+app.post("/ssl-payment-success", async (req, res, next) => {
   return res.status(200).json({
     data: req.body,
   });
 });
-app.post("ssl-payment-failure", async (req, res, next) => {
+app.post("/ssl-payment-failure", async (req, res, next) => {
   return res.status(400).json({
     data: req.body,
   });
 });
-app.post("ssl-payment-cancel", async (req, res, next) => {
+app.post("/ssl-payment-cancel", async (req, res, next) => {
   return res.status(200).json({
     data: req.body,
   });
 });
-app.post("ssl-payment-ipn", async (req, res, next) => {
+app.post("/ssl-payment-ipn", async (req, res, next) => {
   return res.status(200).json({
     data: req.body,
   });
 });
 
-app.get("/", (req, res) => {
-  res.send("Server is running");
+app.get("/", async (req, res) => {
+  /**
+   * Root url response
+   */
+
+  return res.status(200).json({
+    message: "Welcome to sslcommerz app",
+    url: `http://localhost:3000/ssl-request`,
+  });
 });
 
-app.listen(PORT, () => {
-  console.log("Listening to port ", PORT);
+app.post("/ssl-payment-notification", async (req, res) => {
+  /**
+   * If payment notification
+   */
+
+  return res.status(200).json({
+    data: req.body,
+    message: "Payment notification",
+  });
 });
+
+app.listen(process.env.PORT, () =>
+  console.log(`ssl app listening on port ${process.env.PORT}!`)
+);
